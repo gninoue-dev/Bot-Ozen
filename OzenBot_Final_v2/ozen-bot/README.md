@@ -1,4 +1,4 @@
-# 🤖 Ozen.Bot v1.0
+# 🤖 Ozen.Bot v2.0
 
 Bot WhatsApp multi-device personnel, basé sur [@whiskeysockets/baileys](https://github.com/WhiskeySockets/Baileys).
 
@@ -12,9 +12,9 @@ Bot WhatsApp multi-device personnel, basé sur [@whiskeysockets/baileys](https:/
 
 ## 🚀 Installation
 
-### 1. Cloner le repo
+### 1. Cloner le repos
 ```bash
-git clone https://github.com/TON_USERNAME/ozen-bot.git
+git clone https://github.com/gninoue-dev/ozen-bot.git
 cd ozen-bot
 ```
 
@@ -39,12 +39,12 @@ npm start
 Un **Pairing Code** s'affichera dans le terminal. Entre-le dans WhatsApp :
 > Paramètres → Appareils connectés → Connecter un appareil → Numéro de téléphone
 
-## ☁️ Déploiement sur KataBump
+## ☁️ Déploiement sur KataBump ou sur un autre panel 
 
 1. Crée un serveur **Node.js 20.x** sur [control.katabump.com](https://control.katabump.com)
 2. Dans la console, tape :
 ```bash
-git clone https://github.com/TON_USERNAME/ozen-bot.git .
+git clone https://github.com/gninoue-dev/ozen-bot.git .
 ```
 3. Commande de démarrage : `node index.js`
 4. Lance le serveur et récupère le Pairing Code dans les logs
