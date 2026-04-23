@@ -1,0 +1,17 @@
+{
+  "name": "ozen-bot",
+  "version": "1.0.0",
+  "description": "Ozen.Bot — Bot WhatsApp multi-device personnel",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Ozen.Bot",
+  "license": "ISC",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "pino": "^8.21.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
