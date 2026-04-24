@@ -4,5 +4,6 @@
   "botName": "Ozen.Bot",
   "welcome": true,
   "welcomeMessage": "👋 Bienvenue dans le groupe *{group}*, @{number} !\nNous sommes heureux de t'avoir parmi nous. 🎉",
-  "admins": []
+  "admins": ["2250103508128"],
+  "autoReadStatus": true
 }

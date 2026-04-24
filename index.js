@@ -1,5 +1,5 @@
 // ╔══════════════════════════════════════╗
-// ║           Ozen.Bot  v1.0             ║
+// ║           Ozen.Bot  v2.0             ║
 // ║    Bot WhatsApp multi-device         ║
 // ╚══════════════════════════════════════╝
 
@@ -10,7 +10,7 @@ const config = JSON.parse(readFileSync('./config.json', 'utf-8'));
 
 console.log(`
 ╔══════════════════════════════╗
-║        Ozen.Bot  v1.0        ║
+║        Ozen.Bot  v2.0        ║
 ║   Bot WhatsApp Multi-Device  ║
 ╚══════════════════════════════╝
 `);

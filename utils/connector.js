@@ -16,8 +16,8 @@ import { handleWelcome } from '../commands/welcome.js';
 const config = JSON.parse(readFileSync('./config.json', 'utf-8'));
 
 export async function startSession(number) {
-
-    const sessionPath = `./sessions/${number}`;
+    const cleanNumber = number.replace(/[^0-9]/g, '');
+    const sessionPath = `./sessions/${cleanNumber}`;
 
     if (!existsSync(sessionPath)) {
         mkdirSync(sessionPath, { recursive: true });
@@ -31,63 +31,65 @@ export async function startSession(number) {
         auth: state,
         printQRInTerminal: false,
         logger: pino({ level: 'silent' }),
-        markOnlineOnConnect: false,
+        markOnlineOnConnect: true,
         syncFullHistory: false
     });
 
-    // ─── Sauvegarde des credentials ────────────────
     sock.ev.on('creds.update', saveCreds);
 
-    // ─── Gestion de la connexion ────────────────────
     sock.ev.on('connection.update', async (update) => {
-
         const { connection, lastDisconnect } = update;
 
         if (connection === 'close') {
-
             const code = lastDisconnect?.error?.output?.statusCode;
             const shouldReconnect = code !== DisconnectReason.loggedOut;
 
             if (shouldReconnect) {
-                console.log('🔄 [Ozen.Bot] Reconnexion en cours...');
-                startSession(number);
+                console.log(`🔄 [Ozen.Bot] Reconnexion dans 5s (Code: ${code})...`);
+                setTimeout(() => startSession(cleanNumber), 5000);
             } else {
-                console.log('❌ [Ozen.Bot] Session déconnectée. Supprime le dossier sessions/ et relance.');
+                console.log('❌ [Ozen.Bot] Session terminée.');
             }
-
         } else if (connection === 'open') {
-            console.log(`✅ [Ozen.Bot] Connecté avec succès ! Numéro : ${number}`);
-            console.log(`📌 Préfixe des commandes : ${config.prefix}`);
+            console.log(`✅ [Ozen.Bot] Connecté ! Numéro : ${cleanNumber}`);
+            console.log(`📌 Préfixe : ${config.prefix}`);
             console.log('─────────────────────────────────');
         }
     });
 
-    // ─── Demande du Pairing Code (si pas encore lié) ─
-    setTimeout(async () => {
-
-        if (!state.creds.registered) {
+    if (!sock.authState.creds.registered) {
+        setTimeout(async () => {
             try {
-                const code = await sock.requestPairingCode(number);
-                console.log('');
-                console.log('┌─────────────────────────────────┐');
-                console.log(`│  📲 PAIRING CODE : ${code}  │`);
-                console.log('└─────────────────────────────────┘');
-                console.log('👉 WhatsApp → Paramètres → Appareils connectés');
-                console.log('   → Connecter un appareil → Numéro de téléphone');
-                console.log('');
+                if (!sock.authState.creds.registered) {
+                    const code = await sock.requestPairingCode(cleanNumber);
+                    console.log('\n┌─────────────────────────────────┐');
+                    console.log(`│  📲 PAIRING CODE : ${code}  │`);
+                    console.log('└─────────────────────────────────┘\n');
+                }
             } catch (err) {
-                console.error('❌ Erreur pairing code :', err.message);
+                console.error('❌ Erreur Pairing Code :', err.message);
             }
+        }, 5000);
+    }
+
+    // ─── Événements & Auto-Read Status ──────────────
+    sock.ev.on('messages.upsert', async (msg) => {
+        const message = msg.messages[0];
+        if (!message) return;
+
+        // 1. Détection et lecture automatique des statuts
+        if (message.key.remoteJid === 'status@broadcast') {
+            await sock.readMessages([message.key]);
+            const sender = message.key.participant ? message.key.participant.split('@')[0] : 'Inconnu';
+            console.log(`👁️  Statut vu pour : ${sender}`);
+            return; // On arrête le traitement ici pour les statuts
         }
 
-    }, 3000);
-
-    // ─── Messages entrants ──────────────────────────
-    sock.ev.on('messages.upsert', async (msg) => {
+        // 2. Traitement des messages classiques
+        if (msg.type !== 'notify') return;
         await handleMessage(msg, sock, config);
     });
 
-    // ─── Nouveaux membres dans un groupe (Welcome) ──
     sock.ev.on('group-participants.update', async (update) => {
         await handleWelcome(update, sock, config);
     });
